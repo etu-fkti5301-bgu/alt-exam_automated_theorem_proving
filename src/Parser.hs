@@ -1,5 +1,5 @@
 module Parser(
-    parse'
+    lex'
     ) where
 
 import Data.Function
@@ -24,11 +24,11 @@ charCategory ch
               alphanumeric = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'"
 
 -- Groups by category and removes spaces
-parse' :: String -> [String]
-parse' = separateBrackets . filter (isNotSpaceString) . groupBy ((==) `on` charCategory)
-         where
-            space = " \t\n\r"
-            isNotSpaceString = not . any (`elem` space)
+lex' :: String -> [String]
+lex' = separateBrackets . filter (isNotSpaceString) . groupBy ((==) `on` charCategory)
+       where
+          space = " \t\n\r"
+          isNotSpaceString = not . any (`elem` space)
 
 -- Turns strings of brackets into separated elements of list
 separateBrackets :: [String] -> [String]
@@ -49,3 +49,15 @@ parseVar str@(x:xs) = if let alphabetic = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJK
                            then Just (Var str)
                            else Nothing
                       else Nothing
+
+-- Parses constants
+parseConst :: String -> Maybe Expression
+parseConst [] = Nothing
+parseConst str@(x:xs) = if let digitsWithoutZero = "123456789"
+                           in x `elem` digitsWithoutZero
+                        then if let digits = "0123456789"
+                                in foldl (\acc ch -> acc && (ch `elem` digits)) True xs
+                             then Just (Const (read str :: Int))
+                             else Nothing
+                        else Nothing
+
