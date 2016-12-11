@@ -1,10 +1,16 @@
 module Parser(
-    lex'
+    lex',
+    parseConst,
+    parseVar,
+    parseAtom,
+    parseProduct,
+    parseExpression
     ) where
 
 import Data.Function
 import Data.List
 import Data.Char
+import Data.Maybe
 import Expressions
 
 -- Test: "if (*p1-- == *p2++) then f() else g()"
@@ -61,3 +67,39 @@ parseConst str@(x:xs) = if let digitsWithoutZero = "123456789"
                              else Nothing
                         else Nothing
 
+parseExpression :: [String] -> (Maybe Expression, [String])
+parseExpression x 
+               | (isNothing . fst) parsedProduct    = (Nothing, x)
+               | (null . snd) parsedProduct         = parsedProduct
+               | (isNothing . fst) parsedExpression = parsedProduct
+               | (head . snd) parsedProduct == "+"  = (Just (Add ((fromJust . fst) parsedProduct) ((fromJust . fst) parsedExpression)), snd parsedExpression)
+               | otherwise = parsedProduct
+               where
+                  parsedProduct    = parseProduct x
+                  parsedExpression = (parseExpression . tail . snd) parsedProduct
+
+parseProduct :: [String] -> (Maybe Expression, [String])
+parseProduct x 
+               | (isNothing . fst) parsedAtom    = (Nothing, x)
+               | (null . snd) parsedAtom         = parsedAtom
+               | (isNothing . fst) parsedProduct = parsedAtom
+               | (head . snd) parsedAtom == "*"  = (Just (Mul ((fromJust . fst) parsedAtom) ((fromJust . fst) parsedProduct)), snd parsedProduct)
+               | otherwise = parsedAtom
+               where
+                  parsedAtom    = parseAtom x
+                  parsedProduct = (parseProduct . tail . snd) parsedAtom
+
+parseAtom :: [String] -> (Maybe Expression, [String])
+parseAtom x
+         | head x == "(" = if (not . null . snd) parsedExpression
+                           then (Nothing, x)
+                           else (fst parsedExpression, suffix)
+         | (not . isNothing) parsedConst = (parsedConst, tail x)
+         | (not . isNothing) parsedVar   = (parsedVar, tail x)
+         | otherwise = (Nothing, x)
+         where
+            parsedExpression = let exp = ((takeWhile (/= ")")) . tail) x
+                               in parseExpression exp
+            suffix = (tail . dropWhile (/= ")")) x
+            parsedConst = (parseConst . head) x
+            parsedVar   = (parseVar . head) x
