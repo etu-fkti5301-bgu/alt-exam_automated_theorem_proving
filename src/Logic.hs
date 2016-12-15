@@ -4,6 +4,7 @@ module Logic
     , pname
     , onAtoms
     , overAtoms
+    , evaluate
     , makeAnd
     , destructAnd
     , conjuncts
@@ -62,6 +63,17 @@ overAtoms function (Iff p q) operand = overAtoms function p $ overAtoms function
 overAtoms function (Forall name formula) operand = overAtoms function formula operand
 overAtoms function (Exists name formula) operand = overAtoms function formula operand
 overAtoms function _ operand = operand
+
+-- Evaluate atom expressions
+evaluate :: Formula -> (Formula -> Bool) -> Bool
+evaluate False' _ = False
+evaluate True' _ = True
+evaluate (Atom formula) valuation = valuation formula
+evaluate (Not formula) valuation = not $ evaluate formula valuation
+evaluate (And p q) valuation = evaluate p valuation && evaluate q valuation
+evaluate (Or p q) valuation = evaluate p valuation || evaluate q valuation
+evaluate (Imp p q) valuation = not (evaluate p valuation) || evaluate q valuation
+evaluate (Iff p q) valuation = evaluate p valuation == evaluate q valuation
 
 -- Make AND expression with given arguments
 makeAnd :: Formula -> Formula -> Formula
