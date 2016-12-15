@@ -3,6 +3,7 @@ module Logic
     , Proposition(..)
     , pname
     , onAtoms
+    , overAtoms
     , makeAnd
     , destructAnd
     , conjuncts
@@ -49,6 +50,18 @@ onAtoms function (Iff p q) = (Iff (onAtoms function p) (onAtoms function q))
 onAtoms function (Forall symbol formula) = (Forall symbol $ onAtoms function formula)
 onAtoms function (Exists symbol formula) = (Exists symbol $ onAtoms function formula)
 onAtoms _ formula = formula
+
+-- Apply binary function to atoms taken
+overAtoms :: (Formula -> t -> t) -> Formula -> t -> t
+overAtoms function (Atom formula) operand = function formula operand
+overAtoms function (Not formula) operand = overAtoms function formula operand
+overAtoms function (And p q) operand = overAtoms function p $ overAtoms function q operand
+overAtoms function (Or p q) operand = overAtoms function p $ overAtoms function q operand
+overAtoms function (Imp p q) operand = overAtoms function p $ overAtoms function q operand
+overAtoms function (Iff p q) operand = overAtoms function p $ overAtoms function q operand
+overAtoms function (Forall name formula) operand = overAtoms function formula operand
+overAtoms function (Exists name formula) operand = overAtoms function formula operand
+overAtoms function _ operand = operand
 
 -- Make AND expression with given arguments
 makeAnd :: Formula -> Formula -> Formula
