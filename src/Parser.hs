@@ -1,9 +1,4 @@
 module Parser(
-    lex',
-    parseConst,
-    parseVar,
-    parseAtom,
-    parseProduct,
     parseExpression
     ) where
 
@@ -13,7 +8,14 @@ import Data.Char
 import Data.Maybe
 import Expressions
 
--- Test: "if (*p1-- == *p2++) then f() else g()"
+-- Parser
+parseExpression :: String -> Expression
+parseExpression x
+               | (not . null . snd) parsedExpression      = error "I can't parse it! :C"
+               | (isNothing . fst) parsedExpression = error "I can't parse it! :C"
+               | otherwise                          = (fromJust . fst) parsedExpression
+               where
+                  parsedExpression = (parseExpression' . lex') x
 
 -- Returns category of character
 charCategory :: Char -> Int
@@ -24,16 +26,16 @@ charCategory ch
             | ch `elem` symbolic     = 4
             | otherwise              = 5
             where
-              space = " \t\n\r"
-              punctuation = "()[]{}"
-              symbolic = "~!@#$%^&*-+=|\\:;<>.?/"
+              space        = " \t\n\r"
+              punctuation  = "()[]{}"
+              symbolic     = "~!@#$%^&*-+=|\\:;<>.?/"
               alphanumeric = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'"
 
 -- Groups by category and removes spaces
 lex' :: String -> [String]
 lex' = separateBrackets . filter (isNotSpaceString) . groupBy ((==) `on` charCategory)
        where
-          space = " \t\n\r"
+          space            = " \t\n\r"
           isNotSpaceString = not . any (`elem` space)
 
 -- Turns strings of brackets into separated elements of list
@@ -51,7 +53,7 @@ parseVar [] = Nothing
 parseVar str@(x:xs) = if let alphabetic = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
                          in x `elem` alphabetic
                       then if let alphanumeric = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
-                              in foldl (\acc ch -> acc && (ch `elem` alphanumeric)) True xs
+                              in all (`elem` alphanumeric) xs
                            then Just (Var str)
                            else Nothing
                       else Nothing
@@ -62,44 +64,70 @@ parseConst [] = Nothing
 parseConst str@(x:xs) = if let digitsWithoutZero = "123456789"
                            in x `elem` digitsWithoutZero
                         then if let digits = "0123456789"
-                                in foldl (\acc ch -> acc && (ch `elem` digits)) True xs
+                                in all (`elem` digits) xs
                              then Just (Const (read str :: Int))
                              else Nothing
                         else Nothing
 
-parseExpression :: [String] -> (Maybe Expression, [String])
-parseExpression x 
+-- Parses expressons
+parseExpression' :: [String] -> (Maybe Expression, [String])
+parseExpression' x 
                | (isNothing . fst) parsedProduct    = (Nothing, x)
                | (null . snd) parsedProduct         = parsedProduct
                | (isNothing . fst) parsedExpression = parsedProduct
                | (head . snd) parsedProduct == "+"  = (Just (Add ((fromJust . fst) parsedProduct) ((fromJust . fst) parsedExpression)), snd parsedExpression)
-               | otherwise = parsedProduct
+               | otherwise                          = parsedProduct
                where
                   parsedProduct    = parseProduct x
-                  parsedExpression = (parseExpression . tail . snd) parsedProduct
+                  parsedExpression = (parseExpression' . tail . snd) parsedProduct
 
+-- Parses product
 parseProduct :: [String] -> (Maybe Expression, [String])
 parseProduct x 
                | (isNothing . fst) parsedAtom    = (Nothing, x)
                | (null . snd) parsedAtom         = parsedAtom
                | (isNothing . fst) parsedProduct = parsedAtom
                | (head . snd) parsedAtom == "*"  = (Just (Mul ((fromJust . fst) parsedAtom) ((fromJust . fst) parsedProduct)), snd parsedProduct)
-               | otherwise = parsedAtom
+               | otherwise                       = parsedAtom
                where
                   parsedAtom    = parseAtom x
                   parsedProduct = (parseProduct . tail . snd) parsedAtom
 
+-- Parses atom
 parseAtom :: [String] -> (Maybe Expression, [String])
 parseAtom x
-         | head x == "(" = if (not . null . snd) parsedExpression
-                           then (Nothing, x)
-                           else (fst parsedExpression, suffix)
          | (not . isNothing) parsedConst = (parsedConst, tail x)
          | (not . isNothing) parsedVar   = (parsedVar, tail x)
-         | otherwise = (Nothing, x)
+         | head x /= "("                 = (Nothing, x)
+         | isNothing takenExpression     = (Nothing, x)
+         | (null . snd) parsedExpression = (fst parsedExpression, suffix)
+         | otherwise                     = (Nothing, x)
          where
-            parsedExpression = let exp = ((takeWhile (/= ")")) . tail) x
-                               in parseExpression exp
-            suffix = (tail . dropWhile (/= ")")) x
+            takenExpression  = takeExpressionFromBrackets x
+            parsedExpression = (parseExpression' . fst . fromJust) takenExpression
+            suffix = (snd . fromJust) takenExpression
             parsedConst = (parseConst . head) x
             parsedVar   = (parseVar . head) x
+
+-- Returns tuple that contains list from brackets and suffix
+takeExpressionFromBrackets :: [String] -> Maybe ([String], [String])
+takeExpressionFromBrackets [] = Nothing
+takeExpressionFromBrackets xs
+                              | head xs /= "("     = Nothing
+                              | isNothing expEnd   = Nothing
+                              | head brackets /= 0 = Nothing
+                              | otherwise          = Just (exp, suffix)
+                              where
+                                 brackets = scanBrackets xs
+                                 expEnd   = (elemIndex 0 . tail) brackets
+                                 exp      = (tail . take (fromJust expEnd)) xs
+                                 suffix   = drop (fromJust expEnd + 1) xs
+
+-- Returns list of nesting levels of each symbol
+scanBrackets :: [String] -> [Int]
+scanBrackets = foldr (\str acc ->
+                      if str == ")" then (head acc + 1):acc
+                      else if str == "("
+                      then (head acc - 1):acc
+                      else (head acc):acc
+                     ) [0]
