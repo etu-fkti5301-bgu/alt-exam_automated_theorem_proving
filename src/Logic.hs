@@ -19,6 +19,7 @@ module Logic
     , destructIff
     , makeForall
     , makeExists
+    , onAllValuations
     ) where
 
 data Formula a =
@@ -136,3 +137,11 @@ makeForall name formula = (Forall name formula)
 -- Make EXISTS predicate with given name and expression
 makeExists :: String -> (Formula a) -> (Formula a)
 makeExists name formula = (Exists name formula)
+
+-- 
+onAllValuations :: (Eq a) => ((a -> Bool) -> Bool) -> (a -> Bool) -> [a] -> Bool
+onAllValuations subfn v [] = subfn v
+onAllValuations subfn v (x:xs) = let v' t q = if q==x then t else v q in
+                                   onAllValuations subfn (v' False) xs &&
+                                   onAllValuations subfn (v' True) xs
+ 
