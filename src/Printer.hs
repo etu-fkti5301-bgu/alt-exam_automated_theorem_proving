@@ -7,6 +7,9 @@ import Expressions
 printExpression :: Expression -> String
 printExpression e = expression 0 e
 
+instance Show Expression where
+    show = printExpression
+
 expression :: (Ord n, Num n) => n -> Expression -> String
 expression _ (Var e) = e
 expression _ (Const n) = show n
