@@ -1,9 +1,13 @@
 module Utils
-  (
-  listOfAtoms
+  ( atoms
+  , atomUnion
   ) where
 
+import Data.List
 import Logic
 
-listOfAtoms :: (Formula a)-> [a]
-listOfAtoms formula = overAtoms (\x y -> x:y) formula []
+-- Get list of atoms
+atoms formula = atomUnion (\atom -> [atom]) formula
+
+-- Collect atoms by some attribute set by function
+atomUnion function formula = overAtoms (\p q -> function p `union` q) formula []
