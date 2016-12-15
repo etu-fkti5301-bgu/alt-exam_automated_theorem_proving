@@ -11,11 +11,19 @@ import Expressions
 -- Parser
 parseExpression :: String -> Expression
 parseExpression x
-               | (not . null . snd) parsedExpression      = error "I can't parse it! :C"
-               | (isNothing . fst) parsedExpression = error "I can't parse it! :C"
-               | otherwise                          = (fromJust . fst) parsedExpression
+               | (not . null . snd) parsedExpression = error "I can't parse it! :C"
+               | (isNothing . fst) parsedExpression  = error "I can't parse it! :C"
+               | otherwise                           = (fromJust . fst) parsedExpression
                where
                   parsedExpression = (parseExpression' . lex') x
+
+-- Instance for expression
+instance Read Expression where
+  readsPrec _ input
+                  | (isNothing . fst) parsedExpression = []
+                  | otherwise                          = [((fromJust . fst) parsedExpression, (concat . snd) parsedExpression)]
+                  where
+                    parsedExpression = (parseExpression' . lex') input
 
 -- Returns category of character
 charCategory :: Char -> Int
@@ -71,11 +79,13 @@ parseConst str@(x:xs) = if let digitsWithoutZero = "123456789"
 
 -- Parses expressons
 parseExpression' :: [String] -> (Maybe Expression, [String])
-parseExpression' x 
+parseExpression' x
+               | null x                             = (Nothing, x)
                | (isNothing . fst) parsedProduct    = (Nothing, x)
                | (null . snd) parsedProduct         = parsedProduct
-               | (isNothing . fst) parsedExpression = parsedProduct
-               | (head . snd) parsedProduct == "+"  = (Just (Add ((fromJust . fst) parsedProduct) ((fromJust . fst) parsedExpression)), snd parsedExpression)
+               | (head . snd) parsedProduct == "+"  = if (isNothing . fst) parsedExpression
+                                                      then parsedProduct
+                                                      else (Just (Add ((fromJust . fst) parsedProduct) ((fromJust . fst) parsedExpression)), snd parsedExpression)
                | otherwise                          = parsedProduct
                where
                   parsedProduct    = parseProduct x
@@ -84,14 +94,16 @@ parseExpression' x
 -- Parses product
 parseProduct :: [String] -> (Maybe Expression, [String])
 parseProduct x 
-               | (isNothing . fst) parsedAtom    = (Nothing, x)
-               | (null . snd) parsedAtom         = parsedAtom
-               | (isNothing . fst) parsedProduct = parsedAtom
-               | (head . snd) parsedAtom == "*"  = (Just (Mul ((fromJust . fst) parsedAtom) ((fromJust . fst) parsedProduct)), snd parsedProduct)
-               | otherwise                       = parsedAtom
-               where
-                  parsedAtom    = parseAtom x
-                  parsedProduct = (parseProduct . tail . snd) parsedAtom
+              | null x                          = (Nothing, x)
+              | (isNothing . fst) parsedAtom    = (Nothing, x)
+              | (null . snd) parsedAtom         = parsedAtom
+              | (head . snd) parsedAtom == "*"  = if (isNothing . fst) parsedProduct
+                                                  then parsedAtom
+                                                  else (Just (Mul ((fromJust . fst) parsedAtom) ((fromJust . fst) parsedProduct)), snd parsedProduct)
+              | otherwise                       = parsedAtom
+              where
+                parsedAtom    = parseAtom x
+                parsedProduct = (parseProduct . tail . snd) parsedAtom
 
 -- Parses atom
 parseAtom :: [String] -> (Maybe Expression, [String])
