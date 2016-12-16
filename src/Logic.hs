@@ -170,3 +170,6 @@ unsatisfiable fm = tautology (Not fm)
 -- Checks if formula is sastisfiable i.e. it's true at least with one valuation
 satisfiable :: (Eq a) => (Formula a) -> Bool
 satisfiable fm = not (unsatisfiable fm)
+
+-- Substitution
+psubst subfn = onAtoms (\p -> subfn p (Atom p))
