@@ -25,6 +25,7 @@ module Logic
     , tautology
     , satisfiable
     , unsatisfiable
+    , dual
     ) where
 
 import Utils
@@ -170,6 +171,16 @@ unsatisfiable fm = tautology (Not fm)
 -- Checks if formula is sastisfiable i.e. it's true at least with one valuation
 satisfiable :: (Eq a) => (Formula a) -> Bool
 satisfiable fm = not (unsatisfiable fm)
+
+-- Returns dual formula
+dual :: Formula a -> Formula a
+dual False' = True'
+dual True' = False'
+dual (Atom a) = (Atom a)
+dual (Not a) = (Not (dual a))
+dual (And p q) = (Or (dual p) (dual q))
+dual (Or p q) = (And (dual p) (dual q))
+dual _ = error "dual: Formula involves IMP or IFF"
 
 -- Substitution
 psubst subfn = onAtoms (\p -> subfn p (Atom p))
