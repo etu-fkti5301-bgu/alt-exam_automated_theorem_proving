@@ -173,3 +173,13 @@ satisfiable fm = not (unsatisfiable fm)
 
 -- Substitution
 psubst subfn = onAtoms (\p -> subfn p (Atom p))
+
+-- Forall
+forall :: (a -> Bool) -> [a] -> Bool
+forall p [] = True
+forall p (h:t) = (p h) && forall p t
+
+-- Exists
+exists :: (a -> Bool) -> [a] -> Bool
+exists p [] = False
+exists p (h:t) = (p h) || exists p t
