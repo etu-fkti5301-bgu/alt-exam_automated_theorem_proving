@@ -26,6 +26,8 @@ module Logic
     , satisfiable
     , unsatisfiable
     , psimplify
+    , positive
+    , negative
     , dual
     ) where
 
@@ -218,6 +220,13 @@ psimplify' (Iff True' atom) = atom
 psimplify' (Iff atom False') = (Not atom)
 psimplify' (Iff False' atom) = (Not atom)
 psimplify' atom = atom
+
+negative :: Formula a -> Bool
+negative (Not atom) = True
+negative _ = False
+
+positive :: Formula a -> Bool
+positive atom = not (negative atom)
 
 -- Substitution
 psubst subfn = onAtoms (\p -> subfn p (Atom p))
