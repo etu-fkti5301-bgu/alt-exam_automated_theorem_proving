@@ -25,6 +25,7 @@ module Logic
     , tautology
     , satisfiable
     , unsatisfiable
+    , psimplify
     , dual
     ) where
 
@@ -181,6 +182,42 @@ dual (Not a) = (Not (dual a))
 dual (And p q) = (Or (dual p) (dual q))
 dual (Or p q) = (And (dual p) (dual q))
 dual _ = error "dual: Formula involves IMP or IFF"
+
+-- Simplify formulas
+-- Test 1: Imp (Imp (True') (Iff (Atom 'x') (False'))) (Not (Or (Atom 'y') (And (False') (Atom 'z'))))
+-- Exprected result of test 1: Imp (Not (Atom 'x')) (Not (Atom 'y'))
+-- Test 2: Or (Imp (Imp (Atom 'x') (Atom 'y')) (True')) (Not (False'))
+-- Exprected result of test 2: True'
+psimplify :: Formula a -> Formula a
+psimplify (Not atom) = psimplify' (Not (psimplify atom))
+psimplify (And p q) = psimplify' (And (psimplify p) (psimplify q))
+psimplify (Or p q) = psimplify' (Or (psimplify p) (psimplify q))
+psimplify (Imp p q) = psimplify' (Imp (psimplify p) (psimplify q))
+psimplify (Iff p q) = psimplify' (Iff (psimplify p) (psimplify q))
+psimplify atom = atom
+
+-- Simplifying formulas helper
+psimplify' :: Formula a -> Formula a
+psimplify' (Not False') = True'
+psimplify' (Not True') = False'
+psimplify' (Not (Not atom)) = atom
+psimplify' (And atom False') = False'
+psimplify' (And False' atom) = False'
+psimplify' (And atom True') = atom
+psimplify' (And True' atom) = atom
+psimplify' (Or atom False') = atom
+psimplify' (Or False' atom) = atom
+psimplify' (Or atom True') = True'
+psimplify' (Or True' atom) = True'
+psimplify' (Imp False' atom) = True'
+psimplify' (Imp atom True') = True'
+psimplify' (Imp True' atom) = atom
+psimplify' (Imp atom False') = (Not atom)
+psimplify' (Iff atom True') = atom
+psimplify' (Iff True' atom) = atom
+psimplify' (Iff atom False') = (Not atom)
+psimplify' (Iff False' atom) = (Not atom)
+psimplify' atom = atom
 
 -- Substitution
 psubst subfn = onAtoms (\p -> subfn p (Atom p))
