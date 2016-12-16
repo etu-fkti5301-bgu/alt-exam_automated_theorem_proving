@@ -28,6 +28,7 @@ module Logic
     , psimplify
     , positive
     , negative
+    , negate'
     , dual
     ) where
 
@@ -227,6 +228,10 @@ negative _ = False
 
 positive :: Formula a -> Bool
 positive atom = not (negative atom)
+
+negate' :: Formula a -> Formula a
+negate' (Not atom) = atom
+negate' atom = (Not atom)
 
 -- Substitution
 psubst subfn = onAtoms (\p -> subfn p (Atom p))
