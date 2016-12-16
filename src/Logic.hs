@@ -20,7 +20,15 @@ module Logic
     , makeForall
     , makeExists
     , onAllValuations
+    , atoms
+    , atomUnion
+    , tautology
+    , satisfiable
+    , unsatisfiable
     ) where
+
+import Utils
+import Data.List
 
 data Formula a =
       False'
@@ -138,10 +146,27 @@ makeForall name formula = (Forall name formula)
 makeExists :: String -> (Formula a) -> (Formula a)
 makeExists name formula = (Exists name formula)
 
+-- Get list of atoms
+atoms formula = atomUnion (\atom -> [atom]) formula
+
+-- Collect atoms by some attribute set by function
+atomUnion function formula = overAtoms (\p q -> function p `union` q) formula []
+
 -- 
 onAllValuations :: (Eq a) => ((a -> Bool) -> Bool) -> (a -> Bool) -> [a] -> Bool
 onAllValuations subfn v [] = subfn v
 onAllValuations subfn v (x:xs) = let v' t q = if q==x then t else v q in
                                    onAllValuations subfn (v' False) xs &&
                                    onAllValuations subfn (v' True) xs
- 
+
+-- Checks if formula is a tautology
+tautology :: (Eq a) => (Formula a) -> Bool
+tautology fm = onAllValuations (evaluate fm) (\x -> False) (atoms fm)
+
+-- Checks if formula is unsatisfiable i.e. it's always false
+unsatisfiable :: (Eq a) => (Formula a) -> Bool
+unsatisfiable fm = tautology (Not fm)
+
+-- Checks if formula is sastisfiable i.e. it's true at least with one valuation
+satisfiable :: (Eq a) => (Formula a) -> Bool
+satisfiable fm = not (unsatisfiable fm)
