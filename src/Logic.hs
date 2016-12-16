@@ -227,7 +227,7 @@ negative (Not atom) = True
 negative _ = False
 
 positive :: Formula a -> Bool
-positive atom = not (negative atom)
+positive atom = not $ negative atom
 
 negate' :: Formula a -> Formula a
 negate' (Not atom) = atom
