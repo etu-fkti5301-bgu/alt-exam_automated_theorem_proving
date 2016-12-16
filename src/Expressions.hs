@@ -15,7 +15,8 @@ simplify exp = simplify' exp
 
 -- Helper
 simplify' :: Expression -> Expression
-simplify' (Add (Const a) (Const b)) = Const(a + b)
+simplify' (Add (Const a) (Const b)) = Const (a + b)
+simplify' (Mul (Const a) (Const b)) = Const (a * b)
 simplify' (Add (Const 0) x) = x
 simplify' (Add x (Const 0)) = x
 simplify' (Mul (Const 0) x) = Const 0
