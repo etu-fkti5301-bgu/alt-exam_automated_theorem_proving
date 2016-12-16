@@ -1,5 +1,5 @@
-module Parser(
-    parseExpression
+module Expressions.Parser
+    ( parseExpression
     ) where
 
 import Data.Function

@@ -1,5 +1,5 @@
-module Printer(
-    printExpression
+module Expressions.Printer
+    ( printExpression
     ) where
 
 import Expressions

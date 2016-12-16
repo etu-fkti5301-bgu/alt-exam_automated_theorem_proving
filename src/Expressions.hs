@@ -1,6 +1,6 @@
 module Expressions
-    ( Expression(..),
-      simplify
+    ( Expression(..)
+    , simplify
     ) where
 
 -- Expressions constructor [p. 14]
