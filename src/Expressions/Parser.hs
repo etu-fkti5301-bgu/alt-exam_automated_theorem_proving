@@ -6,7 +6,7 @@ import Data.Function
 import Data.List
 import Data.Char
 import Data.Maybe
-import Expressions
+import Expressions.Expressions
 
 -- Parser
 parseExpression :: String -> Expression

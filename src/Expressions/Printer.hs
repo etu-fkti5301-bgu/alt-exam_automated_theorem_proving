@@ -2,7 +2,7 @@ module Expressions.Printer
     ( printExpression
     ) where
 
-import Expressions
+import Expressions.Expressions
 
 printExpression :: Expression -> String
 printExpression e = expression 0 e
