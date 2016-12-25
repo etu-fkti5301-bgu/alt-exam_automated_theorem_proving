@@ -1,7 +1,7 @@
 
 -- Signature
 
-module ATP.Tableaux
+module Tableaux
   ( unifyLiterals
   , deepen
   , prawitz
@@ -12,19 +12,19 @@ where
 
 -- Imports
 
-import ATP.Util.Prelude 
-import qualified ATP.Fol as Fol
-import qualified ATP.Formula as F
-import ATP.FormulaSyn
-import qualified ATP.Prop as Prop
-import qualified ATP.Skolem as Skolem
-import qualified ATP.Unif as Unif
-import ATP.Util.Lib((⟾))
-import qualified ATP.Util.List as List
-import qualified ATP.Util.ListSet as Set
-import qualified ATP.Util.Log as Log
-import ATP.Util.Log(Log)
-import qualified ATP.Util.Monad as M
+import Util.Prelude 
+import qualified Fol as Fol
+import qualified Formula as F
+import FormulaSyn
+import qualified Prop as Prop
+import qualified Skolem as Skolem
+import qualified Unif as Unif
+import Util.Lib((⟾))
+import qualified Util.List as List
+import qualified Util.ListSet as Set
+import qualified Util.Log as Log
+import Util.Log(Log)
+import qualified Util.Monad as M
 import qualified Data.Map as Map
 
 -- Tableaux

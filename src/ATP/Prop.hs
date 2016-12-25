@@ -4,7 +4,7 @@
 
 -- Signature
 
-module ATP.Prop 
+module Prop 
   ( eval
   , atoms
   , apply
@@ -36,13 +36,13 @@ where
 
 -- Imports
 
-import ATP.Util.Prelude
-import qualified ATP.Formula as F
-import ATP.FormulaSyn 
-import qualified ATP.Util.List as List
-import qualified ATP.Util.ListSet as Set
-import ATP.Util.ListSet ((∪))
-import qualified ATP.Util.Print as PP
+import Util.Prelude
+import qualified Formula as F
+import FormulaSyn 
+import qualified Util.List as List
+import qualified Util.ListSet as Set
+import Util.ListSet ((∪))
+import qualified Util.Print as PP
 import qualified Control.Monad as M
 import qualified Data.Map as Map
 import Data.Map(Map)

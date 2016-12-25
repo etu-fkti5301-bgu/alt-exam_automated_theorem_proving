@@ -16,10 +16,10 @@ where
 -- Imports
 
 import Prelude hiding (print)
-import qualified ATP.Fol as Fol
-import ATP.FormulaSyn
-import qualified ATP.Prop as Prop
-import ATP.Util.Lib((⟾))
+import qualified Fol as Fol
+import FormulaSyn
+import qualified Prop as Prop
+import Util.Lib((⟾))
 import qualified Data.List as List
 
 -- Simplification

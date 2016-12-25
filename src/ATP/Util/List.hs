@@ -3,7 +3,7 @@
 
 -- Signature
 
-module ATP.Util.List 
+module Util.List 
   ( module Data.List
   , allInjectiveMaps
   , allPairs
@@ -29,7 +29,7 @@ where
 -- Imports
 
 import Prelude 
-import ATP.Util.Lib (pow)
+import Util.Lib (pow)
 import qualified Control.Monad as M
 import Data.List
 import qualified Test.QuickCheck as Q
