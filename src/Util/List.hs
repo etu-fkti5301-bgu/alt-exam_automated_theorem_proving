@@ -29,30 +29,11 @@ where
 import Prelude 
 import Util.Lib (pow)
 import qualified Control.Monad as M
-import Data.List
+import Data.List hiding (uncons)
 
 -- Util
 
--- Generate small ints
 
-ints :: Int -> Gen Int
-ints n = Q.choose (0, n)
-
--- Lists with a maximum length.
-
-list :: Int -> Gen [Int]
-list 0 = return []
-list n 
- | n > 0 = Q.oneof [ return [], M.liftM2 (:) Q.arbitrary (list $ n-1) ]
- | otherwise = error "Impossible" 
-
--- Lists with very few possibilities for values.
-
-list' :: Int -> Int -> Gen [Int]
-list' 0 _ = return []
-list' n m
- | n > 0 = Q.oneof [ return [], M.liftM2 (:) (ints m) (list' (n-1) m) ]
- | otherwise = error "Impossible" 
 
 -- List operations absent from Data.List
 
@@ -91,13 +72,6 @@ allInjectiveMaps (x:xs) ys =
       f (y, ys') = map ((x, y):) (allInjectiveMaps xs ys')
   in concat $ map f sels
 
-prop_allInjectiveMaps_length :: Property
-prop_allInjectiveMaps_length = Q.label "allInjectiveMaps_length" $
-  Q.forAll (list 8) $ \xs -> 
-  Q.forAll (list 8) $ \ys -> 
-  length (allInjectiveMaps xs ys) ==
-    product (take (length xs) [length ys, length ys - 1 .. ])
-
 -- classify
 
 -- Partition based on Either
@@ -127,13 +101,7 @@ findFirst f (x:xs) = case f x of
   Nothing -> findFirst f xs
   Just y -> Just y
 
-prop_findFirst_correct :: Property
-prop_findFirst_correct = Q.label "findFirst_correct" $
-  Q.forAll (list' 20 10) $ \xs -> 
-  Q.forAll (ints 10) $ \n -> 
-    case findFirst (\x -> if x == n then Just x else Nothing) xs of
-      Nothing -> not $ elem n xs
-      Just k -> k == n
+
 
 -- findRemFirst 
 
@@ -169,22 +137,6 @@ insertAt :: Int -> a -> [a] -> [a]
 insertAt 0 x xs = x:xs
 insertAt _ _ [] = error "insertAt: empty"
 insertAt n x (y:ys) = y:insertAt (n-1) x ys
-
-prop_insertAt_length :: Property
-prop_insertAt_length = Q.label "insertAt_length" $
-  Q.forAll (list 10) $ \xs -> 
-  Q.forAll (ints $ length xs) $ \n -> 
-   n <= length xs ==> 
-   0 <= n ==> 
-    length (insertAt n 7 xs) == length xs + 1
-
-prop_insertAt_correct :: Property
-prop_insertAt_correct = Q.label "insertAt_correct" $
-  Q.forAll (list 10) $ \xs -> 
-  Q.forAll (ints $ length xs) $ \n -> 
-   n <= length xs ==> 
-   0 <= n ==> 
-    insertAt n 7 xs == take n xs ++ 7 : drop n xs
 
 -- foldr2 
 

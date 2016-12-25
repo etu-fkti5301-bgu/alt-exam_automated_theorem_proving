@@ -1,4 +1,4 @@
--- * Signature
+--Signature
 
 module Fol
   ( onformula

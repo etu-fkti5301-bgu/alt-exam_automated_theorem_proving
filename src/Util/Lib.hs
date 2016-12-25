@@ -3,7 +3,7 @@
 
 -- * Signature
 
-module ATP.Util.Lib 
+module Util.Lib 
   ( time
   , timeIO
   , pow

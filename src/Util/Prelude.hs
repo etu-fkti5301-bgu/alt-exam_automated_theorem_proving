@@ -16,13 +16,13 @@ where
 
 -- * Imports
 
-import Prelude hiding (print, putStr, putStrLn)
+import Prelude-- hiding (print, putStr, putStrLn)
 import Control.Applicative ((<$>))
 import Control.Arrow (first, second)
 import qualified Util.Print as Print
 import Util.Print ((<>), (<+>), Doc, pPrint, Print)
 import Data.Maybe (fromJust)
-import System.IO.UTF8 (print, putStr, putStrLn)
+--import System.IO.UTF8 (print, putStr, putStrLn)
 
 -- * Util
 

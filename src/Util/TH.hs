@@ -3,7 +3,7 @@
 
 -- Signature 
 
-module ATP.Util.TH 
+module Util.TH 
   ( conE
   , conP
   , varE

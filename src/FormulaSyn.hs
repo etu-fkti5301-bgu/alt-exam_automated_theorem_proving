@@ -35,8 +35,8 @@ import qualified Data.List as List
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Quote as Q
 import Language.Haskell.TH.Quote (QuasiQuoter(..))
-import qualified Ratio
-import Ratio ((%))
+import qualified Data.Ratio as Ratio
+import Data.Ratio ((%))
 
 -- Syntax
 

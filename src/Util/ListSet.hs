@@ -23,7 +23,7 @@ where
 -- * Imports
 
 import Prelude hiding (subtract)
-import qualified List
+import qualified Util.List as List
 
 -- * Sets as lists
 

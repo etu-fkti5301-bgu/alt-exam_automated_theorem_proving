@@ -15,18 +15,67 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Expressions Expressions.Expressions Expressions.Parser Expressions.Printer
-                       FirstOrder Logic Utils
-  build-depends:       base >= 4.7 && < 5
+  exposed-modules:     Fol, Formula, FormulaSyn, Prop, Unif, Resolution, Skolem, Tableaux, Util.Lex, Util.Lib, Util.List, Util.ListSet, Util.Print, Util.Print.Print, Util.Parse, Util.Parse.Parse, Util.Monad, Util.Prelude
+  build-depends:  base >= 4.1.0.0 && < 5,
+                  containers >= 0.2.0.1,
+                  mtl >= 1.1.0.2,
+                  parsec >= 2.0,
+                  utf8-string >= 0.3.5,
+                  HUnit >= 1.2.2.0,
+                  pretty >= 1.0.1.0,
+                  QuickCheck >= 2.1,
+                  template-haskell >= 2.3.0.1,
+                  hslogger >= 1.0.7,
+                  syb >= 0.1.0.1
+  extensions:          NoImplicitPrelude
+                       MultiParamTypeClasses
+                       ScopedTypeVariables
+                       TypeSynonymInstances
+                    --   OverlappingInstances
+                       FlexibleInstances
+                       DeriveDataTypeable
+                       TemplateHaskell
+                       QuasiQuotes
+                       CPP
   default-language:    Haskell2010
+  ghc-options:         -Wall 
+                        -- These warnings are not turned on by -Wall
+                       -fwarn-implicit-prelude 
+                       -fwarn-monomorphism-restriction 
+                       -fwarn-incomplete-record-updates 
+                       -fwarn-tabs 
+                       -fno-ignore-asserts
+                       -- -v
+                       -- Dump Core language
+                       -- -ddump-simpl
+                       -- Warnings as errors
+                     --  -Werror
+                       -- Allow comment lines next to literate lines
+                       -optL -q
+                       -- Profiling 
+                       -- -prof
+                       -- -auto-all
 
 executable alt-exam-exe
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+                       -fno-ignore-asserts
+                       -- Allow comment lines next to literate lines
+                       -optL -q
   build-depends:       base
                      , alt-exam
   default-language:    Haskell2010
+  extensions:          NoImplicitPrelude
+                       MultiParamTypeClasses
+                       ScopedTypeVariables
+                       TypeSynonymInstances
+                       OverlappingInstances
+                       FlexibleInstances
+                       DeriveDataTypeable
+                       TemplateHaskell
+                       QuasiQuotes
+                       CPP
 
 test-suite alt-exam-test
   type:                exitcode-stdio-1.0
