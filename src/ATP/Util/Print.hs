@@ -1,7 +1,7 @@
 
 -- Signature
 
-module ATP.Util.Print 
+module Util.Print 
   ( module Text.PrettyPrint.HughesPJ
   , module ATP.Util.Print.Print
   ) 

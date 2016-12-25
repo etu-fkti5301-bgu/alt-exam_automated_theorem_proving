@@ -1,7 +1,7 @@
 
 -- Signature
 
-module ATP.Util.Print.Print
+module Util.Print.Print
   ( Print(..)
   , GenPrint(..)
   , prettyShow
