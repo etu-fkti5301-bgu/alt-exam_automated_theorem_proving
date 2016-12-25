@@ -2,6 +2,7 @@
 
 import sys
 import os.path
+import re
 
 if len(sys.argv) < 2:
     print('Give me a file! }:C')
@@ -33,7 +34,12 @@ for line in lines:
     elif line[0] == '>':
         output_file.write(line[2:])
     else:
-        output_file.write('-- ' + line[2:])
+        m = re.search('[0-9a-zA-Z]', line)
+        if m:
+            line = ('').join(list(line)[m.start():])
+            output_file.write('-- ' + line)
+        else:
+            output_file.write('\n')
         
 
 print('Nya! :3')
