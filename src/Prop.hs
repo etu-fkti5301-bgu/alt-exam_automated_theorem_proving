@@ -40,7 +40,6 @@ import qualified Util.List as List
 import qualified Util.ListSet as Set
 import Util.ListSet ((∪))
 import qualified Util.Print as PP
-import qualified Control.Monad as M
 import qualified Data.Map as Map
 import Data.Map(Map)
 
@@ -58,14 +57,14 @@ instance Apply Formula where
 
 eval :: Formula -> (Rel -> Bool) -> Bool
 eval fm v = case fm of
-  [$form| ⊤ |] -> True
-  [$form| ⊥ |] -> False
-  [$form| ^a |] -> v a
-  [$form| ¬ $p |] -> not (eval p v)
-  [$form| $p ∧ $q |] -> eval p v && eval q v
-  [$form| $p ∨ $q |] -> eval p v || eval q v
-  [$form| $p ⊃ $q |] -> not (eval p v) || (eval q v)
-  [$form| $p ⇔ $q |] -> eval p v == eval q v
+  [form| ⊤ |] -> True
+  [form| ⊥ |] -> False
+  [form| ^a |] -> v a
+  [form| ¬ $p |] -> not (eval p v)
+  [form| $p ∧ $q |] -> eval p v && eval q v
+  [form| $p ∨ $q |] -> eval p v || eval q v
+  [form| $p ⊃ $q |] -> not (eval p v) || (eval q v)
+  [form| $p ⇔ $q |] -> eval p v == eval q v
   _ -> error "quantifier in prop eval"
 
 -- Return all atoms in a formula.
@@ -99,11 +98,11 @@ truthtable fm = PP.render (truthtableDoc fm)
         separator = replicate (width * length pvs + 9) '-' 
         row v =
             let lis = map (truthstring . v) pvs 
-                ans = truthstring(eval fm' v) in
-                [lis ++ [ans]]
+                ans = truthstring(eval fm' v)
+            in [lis ++ [ans]]
         rows = onallvaluations row (++) (const False) pvs
-        rowStr r = let (lis, ans) = splitAt (length r - 1) r in
-                       (foldr (++) ("| " ++ head ans) lis)
+        rowStr r = let (lis, ans)::([String], [String]) = splitAt (length r - 1) r
+                   in (foldr (++) ("| " ++ head ans) lis)
     in PP.vcat [ PP.text (foldr (\s t -> fixw(show s) ++ t) "| formula" pvs) 
                , PP.empty 
                , PP.text separator
@@ -129,14 +128,14 @@ satisfiable = not . unsatisfiable
 
 dual :: Formula -> Formula 
 dual fm = case fm of
-  [$form| ⊥ |] -> (⊤)
-  [$form| ⊤ |] -> (⊥)
-  [$form| ^_ |] -> fm
-  [$form| ¬ $p |] -> (¬) $ dual p
-  [$form| $p ∧ $q |] -> p' ∨ q'
+  [form| ⊥ |] -> (⊤)
+  [form| ⊤ |] -> (⊥)
+  [form| ^_ |] -> fm
+  [form| ¬ $p |] -> (¬) $ dual p
+  [form| $p ∧ $q |] -> p' ∨ q'
     where p' = dual p
           q' = dual q
-  [$form| $p ∨ $q |] -> p' ∧ q'
+  [form| $p ∨ $q |] -> p' ∧ q'
     where p' = dual p
           q' = dual q
   _ -> error "Formula involves connectives ⊃ and ⇔"
@@ -145,18 +144,18 @@ dual fm = case fm of
 
 simplify :: Formula -> Formula
 simplify fm = case fm of
-  [$form| ¬ $p |] -> simplify1 $ (¬) p'
+  [form| ¬ $p |] -> simplify1 $ (¬) p'
     where p' = simplify p
-  [$form| $p ∧ $q |] -> simplify1 $ p' ∧ q'
-    where p' = simplify p
-          q' = simplify q
-  [$form| $p ∨ $q |] -> simplify1 $ p' ∨ q' 
+  [form| $p ∧ $q |] -> simplify1 $ p' ∧ q'
     where p' = simplify p
           q' = simplify q
-  [$form| $p ⊃ $q |] -> simplify1 $ p' ⊃ q'
+  [form| $p ∨ $q |] -> simplify1 $ p' ∨ q' 
     where p' = simplify p
           q' = simplify q
-  [$form| $p ⇔ $q |] -> simplify1 $ p' ⇔ q' 
+  [form| $p ⊃ $q |] -> simplify1 $ p' ⊃ q'
+    where p' = simplify p
+          q' = simplify q
+  [form| $p ⇔ $q |] -> simplify1 $ p' ⇔ q' 
     where p' = simplify p
           q' = simplify q
   _ -> fm
@@ -165,26 +164,26 @@ simplify fm = case fm of
 
 simplify1 :: Formula -> Formula
 simplify1 fm = case fm of
-  [$form| ¬ ⊥ |] -> (⊤)
-  [$form| ¬ ⊤ |] -> (⊥)
-  [$form| ¬ ¬ $p |] -> p
-  [$form| ⊥ ∧ _ |] -> (⊥)
-  [$form| _ ∧ ⊥ |] -> (⊥)
-  [$form| ⊤ ∧ $q |] -> q
-  [$form| $p ∧ ⊤ |] -> p
-  [$form| ⊥ ∨ $q |] -> q
-  [$form| $p ∨ ⊥ |] -> p
-  [$form| ⊤ ∨ _ |] -> (⊤)
-  [$form| _ ∨ ⊤ |] -> (⊤)
-  [$form| ⊥ ⊃ _ |] -> (⊤)
-  [$form| _ ⊃ ⊤ |] ->  (⊤)
-  [$form| ⊤ ⊃ $q |] -> q
-  [$form| $p ⊃ ⊥ |] -> (¬) p
-  [$form| ⊤ ⇔ $q |] -> q
-  [$form| $p ⇔ ⊤ |] -> p
-  [$form| ⊥ ⇔ ⊥ |] -> (⊤)
-  [$form| ⊥ ⇔ $q |] -> (¬) q
-  [$form| $p ⇔ ⊥ |] -> (¬) p
+  [form| ¬ ⊥ |] -> (⊤)
+  [form| ¬ ⊤ |] -> (⊥)
+  [form| ¬ ¬ $p |] -> p
+  [form| ⊥ ∧ _ |] -> (⊥)
+  [form| _ ∧ ⊥ |] -> (⊥)
+  [form| ⊤ ∧ $q |] -> q
+  [form| $p ∧ ⊤ |] -> p
+  [form| ⊥ ∨ $q |] -> q
+  [form| $p ∨ ⊥ |] -> p
+  [form| ⊤ ∨ _ |] -> (⊤)
+  [form| _ ∨ ⊤ |] -> (⊤)
+  [form| ⊥ ⊃ _ |] -> (⊤)
+  [form| _ ⊃ ⊤ |] ->  (⊤)
+  [form| ⊤ ⊃ $q |] -> q
+  [form| $p ⊃ ⊥ |] -> (¬) p
+  [form| ⊤ ⇔ $q |] -> q
+  [form| $p ⇔ ⊤ |] -> p
+  [form| ⊥ ⇔ ⊥ |] -> (⊤)
+  [form| ⊥ ⇔ $q |] -> (¬) q
+  [form| $p ⇔ ⊥ |] -> (¬) p
   _ -> fm
 
 -- Negation normal form
@@ -194,31 +193,31 @@ nnf = nnf' . simplify
 
 nnf' :: Formula -> Formula
 nnf' fm = case fm of 
-  [$form| $p ∧ $q |] -> p' ∧ q'
+  [form| $p ∧ $q |] -> p' ∧ q'
     where p' = nnf' p 
           q' = nnf' q
-  [$form| $p ∨ $q |] -> p' ∨ q'
+  [form| $p ∨ $q |] -> p' ∨ q'
     where p' = nnf' p 
           q' = nnf' q
-  [$form| $p ⊃ $q |] -> np' ∨ q'
+  [form| $p ⊃ $q |] -> np' ∨ q'
     where np' = nnf' $ (¬) p
           q' = nnf' q
-  [$form| $p ⇔ $q |] -> p' ∧ q' ∨ p'' ∧ q''
+  [form| $p ⇔ $q |] -> p' ∧ q' ∨ p'' ∧ q''
     where p' = nnf' p
           q' = nnf' q
           p'' = nnf' $ (¬) p
           q'' = nnf' $ (¬) q
-  [$form| ¬ ¬ $p |] -> nnf' p
-  [$form| ¬ ($p ∧ $q) |] -> p' ∨ q'
+  [form| ¬ ¬ $p |] -> nnf' p
+  [form| ¬ ($p ∧ $q) |] -> p' ∨ q'
     where p' = nnf' $ (¬) p
           q' = nnf' $ (¬) q 
-  [$form| ¬ ($p ∨ $q) |] -> p' ∧ q'
+  [form| ¬ ($p ∨ $q) |] -> p' ∧ q'
     where p' = nnf' $ (¬) p
           q' = nnf' $ (¬) q
-  [$form| ¬ ($p ⊃ $q) |] -> p' ∧ q'
+  [form| ¬ ($p ⊃ $q) |] -> p' ∧ q'
     where p' = nnf' p
           q' = nnf' $ (¬) q
-  [$form| ¬ ($p ⇔ $q) |] -> p' ∧ q'' ∨ p'' ∧ q' 
+  [form| ¬ ($p ⇔ $q) |] -> p' ∧ q'' ∨ p'' ∧ q' 
     where p' = nnf' p
           q' = nnf' q
           p'' = nnf' $ (¬) p
@@ -230,29 +229,29 @@ nenf = nenf' . simplify
 
 nenf' :: Formula -> Formula
 nenf' fm = case fm of 
-  [$form| ¬¬$p |] -> nenf' p
-  [$form| ¬($p ∧ $q) |] -> [$form| $p' ∨ $q' |] 
-    where p' = nenf' [$form| ¬ $p |]
-          q' = nenf' [$form| ¬ $q |]
-  [$form| ¬($p ∨ $q) |] -> [$form| $p' ∧ $q' |] 
-    where p' = nenf' [$form| ¬ $p |]
-          q' = nenf' [$form| ¬ $q |]
-  [$form| ¬($p ⊃ $q) |] -> [$form| $p' ∧ $q' |] 
+  [form| ¬¬$p |] -> nenf' p
+  [form| ¬($p ∧ $q) |] -> [form| $p' ∨ $q' |] 
+    where p' = nenf' [form| ¬ $p |]
+          q' = nenf' [form| ¬ $q |]
+  [form| ¬($p ∨ $q) |] -> [form| $p' ∧ $q' |] 
+    where p' = nenf' [form| ¬ $p |]
+          q' = nenf' [form| ¬ $q |]
+  [form| ¬($p ⊃ $q) |] -> [form| $p' ∧ $q' |] 
     where p' = nenf' p
-          q' = nenf' [$form| ¬ $q |]
-  [$form| ¬($p ⇔ $q) |] -> [$form| $p' ⇔ $q' |] 
+          q' = nenf' [form| ¬ $q |]
+  [form| ¬($p ⇔ $q) |] -> [form| $p' ⇔ $q' |] 
     where p' = nenf' p
-          q' = nenf' [$form| ¬ $q |]
-  [$form| $p ∧ $q |] -> [$form| $p' ∧ $q' |] 
-    where p' = nenf' p
-          q' = nenf' q
-  [$form| $p ∨ $q |] -> [$form| $p' ∨ $q' |] 
+          q' = nenf' [form| ¬ $q |]
+  [form| $p ∧ $q |] -> [form| $p' ∧ $q' |] 
     where p' = nenf' p
           q' = nenf' q
-  [$form| $p ⊃ $q |] -> [$form| $p' ∨ $q' |] 
-    where p' = nenf' [$form| ¬ $p |]
+  [form| $p ∨ $q |] -> [form| $p' ∨ $q' |] 
+    where p' = nenf' p
           q' = nenf' q
-  [$form| $p ⇔ $q |] -> [$form| $p' ⇔ $q' |] 
+  [form| $p ⊃ $q |] -> [form| $p' ∨ $q' |] 
+    where p' = nenf' [form| ¬ $p |]
+          q' = nenf' q
+  [form| $p ⇔ $q |] -> [form| $p' ⇔ $q' |] 
     where p' = nenf' p
           q' = nenf' q
   _ -> fm
@@ -261,19 +260,19 @@ nenf' fm = case fm of
 
 occurrences :: Rel -> Formula -> (Bool, Bool)
 occurrences x fm = case fm of
-  [$form| ^y |] -> (x == y, False)
-  [$form| ¬ $p |] -> (neg, pos)
+  [form| ^y |] -> (x == y, False)
+  [form| ¬ $p |] -> (neg, pos)
     where (pos, neg) = occurrences x p 
-  [$form| $p ∧ $q |] -> (pos1 || pos2, neg1 || neg2)
+  [form| $p ∧ $q |] -> (pos1 || pos2, neg1 || neg2)
     where (pos1, neg1) = occurrences x p
           (pos2, neg2) = occurrences x q 
-  [$form| $p ∨ $q |] -> (pos1 || pos2, neg1 || neg2)
+  [form| $p ∨ $q |] -> (pos1 || pos2, neg1 || neg2)
     where (pos1, neg1) = occurrences x p
           (pos2, neg2) = occurrences x q 
-  [$form| $p ⊃ $q |] -> (neg1 || pos2, pos1 || neg2)
+  [form| $p ⊃ $q |] -> (neg1 || pos2, pos1 || neg2)
     where (pos1, neg1) = occurrences x p
           (pos2, neg2) = occurrences x q 
-  [$form| $p ⇔ $q |] -> if pos1 || pos2 || neg1 || neg2 
+  [form| $p ⇔ $q |] -> if pos1 || pos2 || neg1 || neg2 
                           then (True, True) else (False, False)
     where (pos1, neg1) = occurrences x p
           (pos2, neg2) = occurrences x q 
@@ -329,20 +328,20 @@ simpcnf fm =
 purecnf :: Formula -> [[Formula]]
 purecnf = map (map F.opp) . (purednf . nnf . Not)
 
--- nnf [$form| p ⇔ (q ⇔ r) |]
--- cnf [$form| p ⇔ (q ⇔ r) |]
--- dnf [$form| p ⇔ (q ⇔ r) |]
+-- nnf [form| p ⇔ (q ⇔ r) |]
+-- cnf [form| p ⇔ (q ⇔ r) |]
+-- dnf [form| p ⇔ (q ⇔ r) |]
 
 -- Tests
 
 -- A small number of propositional variables
 
-props :: Int -> Gen Rel
-props n = fmap (\i -> R ("p" ++ show i) []) $ Q.choose (0, n)
+{-props :: Int -> Gen Rel
+props n = fmap (\i -> R ("p" ++ show i) []) $ Q.choose (0, n)-}
 
 -- Formulas with a maximum size.
 
-forms :: Int -> Gen Formula
+{-forms :: Int -> Gen Formula
 forms 0 = Q.oneof [ fmap Atom (props 10), return Top, return Bot ]
 forms n 
  | n > 0 = Q.oneof [ forms (n-1)
@@ -353,5 +352,5 @@ forms n
                    , M.liftM2 Iff fms fms 
                    ]
  | otherwise = error "Impossible" 
- where fms = forms $ n - 1
+ where fms = forms $ n - 1-}
 
