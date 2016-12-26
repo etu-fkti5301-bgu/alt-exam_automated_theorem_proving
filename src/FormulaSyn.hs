@@ -1,4 +1,3 @@
-
 -- Signature
 
 module FormulaSyn 
@@ -164,8 +163,8 @@ isQuote _ = False
 encodeRel :: String -> Rel
 encodeRel s = R s []
 
-{- decodeRel :: Rel -> Maybe String 
-   decodeRel (R s _) = if isQuote s then Just s else Nothing -}
+decodeRel :: Rel -> Maybe String 
+decodeRel (R s _) = if isQuote s then Just s else Nothing
 
 var :: Parser Var
 var = do _ <- Lex.symbol "$"
@@ -337,69 +336,69 @@ antiTP v = case v of
 
 form :: QuasiQuoter
 form = QuasiQuoter
-  { quoteExp  = quoteExpT
-  , quotePat  = quotePatT
+  { quoteExp  = quoteExpF
+  , quotePat  = quotePatF
   , quoteType = undefined
   , quoteDec  = undefined
   }
 
-{- quoteExpF :: String -> TH.Q TH.Exp
-   quoteExpF = quoteFE . parse -}
+quoteExpF :: String -> TH.Q TH.Exp
+quoteExpF = quoteFE . parse
 
-{- quotePatF :: String -> TH.Q TH.Pat
-   quotePatF = quoteFP . parse -}
+quotePatF :: String -> TH.Q TH.Pat
+quotePatF = quoteFP . parse
 
 -- Expressions
 
-{- quoteFE :: Formula -> TH.Q TH.Exp
-   quoteFE = Q.dataToExpQ (G.mkQ Nothing quoteFE') -}
+quoteFE :: Formula -> TH.Q TH.Exp
+quoteFE = Q.dataToExpQ (G.mkQ Nothing quoteFE')
 
-{- quoteFE' :: Formula -> Maybe (TH.Q TH.Exp) 
-   quoteFE' p = case p of 
-     Atom a@(R pred ts) -> case decodeRel a of 
-        Just q -> Just $ antiFE q
-        Nothing -> Just $ TH'.conE "Atom" [TH'.conE "R" [TH.stringE pred, TH.listE (map quoteTE ts)]] 
-     All x p' -> Just $ TH'.conE "All" [boundFE x, quoteFE p']
-     Ex x p' -> Just $ TH'.conE "Ex" [boundFE x, quoteFE p']
-     _ -> Nothing -}
+quoteFE' :: Formula -> Maybe (TH.Q TH.Exp) 
+quoteFE' p = case p of 
+  Atom a@(R pred ts) -> case decodeRel a of 
+     Just q -> Just $ antiFE q
+     Nothing -> Just $ TH'.conE "Atom" [TH'.conE "R" [TH.stringE pred, TH.listE (map quoteTE ts)]] 
+  All x p' -> Just $ TH'.conE "All" [boundFE x, quoteFE p']
+  Ex x p' -> Just $ TH'.conE "Ex" [boundFE x, quoteFE p']
+  _ -> Nothing
 
-{- antiFE :: String -> TH.Q TH.Exp
-   antiFE v = case v of
-     '$':back -> TH'.varE back
-     '^':back -> TH'.conE "Atom" [TH'.varE back]
-     _ -> error ("Impossible: " ++ v) -}
+antiFE :: String -> TH.Q TH.Exp
+antiFE v = case v of
+  '$':back -> TH'.varE back
+  '^':back -> TH'.conE "Atom" [TH'.varE back]
+  _ -> error ("Impossible: " ++ v)
 
-{- boundFE :: Var -> TH.Q TH.Exp
-   boundFE ('$':x) = TH'.varE x 
-   boundFE x = TH.stringE x -}
+boundFE :: Var -> TH.Q TH.Exp
+boundFE ('$':x) = TH'.varE x 
+boundFE x = TH.stringE x
 
 -- Patterns 
 
-{- quoteFP :: Formula -> TH.Q TH.Pat
-   quoteFP = Q.dataToPatQ (G.mkQ Nothing quoteFP') -}
+quoteFP :: Formula -> TH.Q TH.Pat
+quoteFP = Q.dataToPatQ (G.mkQ Nothing quoteFP')
 
-{- quoteFP' :: Formula -> Maybe (TH.Q TH.Pat)
-   quoteFP' p = case p of 
-     Atom a@(R pred ts) -> 
-      case decodeRel a of 
-        Just q -> Just $ antiFP q
-        Nothing -> Just $ TH'.conP "Atom" [TH'.conP "R" [TH.litP $ TH.stringL pred, TH.listP (map quoteTP ts)]] 
-     All x p' -> Just $ TH'.conP "All" [boundFP x, quoteFP p']
-     Ex x p' -> Just $ TH'.conP "Ex" [boundFP x, quoteFP p']
-     _ -> Nothing -}
+quoteFP' :: Formula -> Maybe (TH.Q TH.Pat)
+quoteFP' p = case p of 
+  Atom a@(R pred ts) -> 
+   case decodeRel a of 
+     Just q -> Just $ antiFP q
+     Nothing -> Just $ TH'.conP "Atom" [TH'.conP "R" [TH.litP $ TH.stringL pred, TH.listP (map quoteTP ts)]] 
+  All x p' -> Just $ TH'.conP "All" [boundFP x, quoteFP p']
+  Ex x p' -> Just $ TH'.conP "Ex" [boundFP x, quoteFP p']
+  _ -> Nothing
 
-{- antiFP :: String -> TH.Q TH.Pat
-   antiFP v = case v of
-     "_"  -> TH.wildP
-     "$_"  -> TH.wildP
-     '$':x -> TH'.varP x
-     "^_"  -> TH'.conP "Atom" [TH.wildP]
-     '^':x -> TH'.conP "Atom" [TH'.varP x]
-     _ -> error ("Impossible: " ++ v) -}
+antiFP :: String -> TH.Q TH.Pat
+antiFP v = case v of
+  "_"  -> TH.wildP
+  "$_"  -> TH.wildP
+  '$':x -> TH'.varP x
+  "^_"  -> TH'.conP "Atom" [TH.wildP]
+  '^':x -> TH'.conP "Atom" [TH'.varP x]
+  _ -> error ("Impossible: " ++ v)
 
-{- boundFP :: Var -> TH.Q TH.Pat
-   boundFP ('$':x) = TH'.varP x
-   boundFP x = TH.litP $ TH.stringL x -}
+boundFP :: Var -> TH.Q TH.Pat
+boundFP ('$':x) = TH'.varP x
+boundFP x = TH.litP $ TH.stringL x
 
 -- Printing
 

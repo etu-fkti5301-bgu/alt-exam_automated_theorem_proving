@@ -23,8 +23,8 @@ import qualified Data.List as List
 onatoms :: (Rel -> Formula) -> Formula -> Formula
 onatoms f fm =
   case fm of 
-    [form| ⊤ |] -> [form| ⊤ |]   -- ⊤
-    [form| ⊥ |] -> [form| ⊥ |] -- ⊥
+    [form| ⊤ |] -> [form| ⊤ |]
+    [form| ⊥ |] -> [form| ⊥ |]
     [form| ^a |] -> f a
     [form| ~ $p |] -> [form| ¬ $p' |]
       where p' = onatoms f p
