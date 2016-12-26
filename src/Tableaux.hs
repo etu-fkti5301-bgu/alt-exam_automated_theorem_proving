@@ -144,8 +144,8 @@ tableau (fms, lits, n) cont (env, k) =
       Or p q : unexp -> tableau (p:unexp, lits, n) (tableau (q:unexp, lits, n) cont) (env, k)
       fm @ (All x p) : unexp ->
         let y = Var("_" ++ show k) 
-          p' = Fol.apply (x ⟾ y)  p in
-            tableau (p':unexp ++ [fm], lits, n-1) cont (env, k+1)
+            p' = Fol.apply (x ⟾ y) p in
+              tableau (p':unexp ++ [fm], lits, n-1) cont (env, k+1)
       fm:unexp -> 
         let findFn l = do env' <- unifyComplements env (fm,l) 
                           cont(env', k) in
