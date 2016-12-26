@@ -1,15 +1,13 @@
-name:                alt-exam
-version:             0.1.0.0
-synopsis:            Initial project template from stack
-description:         Please see README.md
-homepage:            https://github.com/githubuser/alt-exam#readme
-license:             BSD3
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2016 Author name here
-category:            Web
-build-type:          Simple
-cabal-version:       >= 1.10
+name:                 alt-exam
+version:              0.9.0
+build-type:           Simple
+cabal-version:        >= 1.10
+
+license:              GPL
+category:             First order logic algorithms
+synopsis:             Haskell theorem proving algorithms.
+description:          A Haskell port of the code parts from John Harrison's book
+                      "Handbook of Practical Logic and Automated Reasoning".
 
 library
   hs-source-dirs: src
@@ -78,9 +76,7 @@ executable alt-exam-exe
 
   main-is:  Main.hs
 
-  ghc-options:  -threaded
-                -rtsopts
-                -with-rtsopts=-N
+  ghc-options:  -threaded -rtsopts -with-rtsopts=-N
                 -fno-ignore-asserts
                 -optL -q
 
@@ -109,13 +105,6 @@ test-suite alt-exam-test
   build-depends:  base,
                   alt-exam
 
-  ghc-options:  -threaded
-                -rtsopts
-                -with-rtsopts=-N
+  ghc-options:  -threaded -rtsopts -with-rtsopts=-N
 
   default-language: Haskell2010
-
-source-repository head
-  type: git
-
-  location: https://github.com/githubuser/alt-exam
