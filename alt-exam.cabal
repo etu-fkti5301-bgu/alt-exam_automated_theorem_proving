@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Fol, Formula, FormulaSyn, Prop, Unif, Resolution, Skolem, Tableaux, Util.Lex, Util.Lib, Util.List, Util.ListSet, Util.Print, Util.Print.Print, Util.Parse, Util.Parse.Parse, Util.Monad, Util.Prelude
+  exposed-modules:     Fol, Formula, FormulaSyn, Prop, Unif, Resolution, Skolem, Tableaux, Util.Lex, Util.Lib, Util.List, Util.ListSet, Util.Print, Util.Print.Print, Util.Parse, Util.Parse.Parse, Util.Monad, Util.Prelude, Util.TH
   build-depends:  base >= 4.1.0.0 && < 5,
                   containers >= 0.2.0.1,
                   mtl >= 1.1.0.2,
@@ -27,34 +27,24 @@ library
                   template-haskell >= 2.3.0.1,
                   hslogger >= 1.0.7,
                   syb >= 0.1.0.1
-  extensions:          NoImplicitPrelude
+  default-extensions:  NoImplicitPrelude
                        MultiParamTypeClasses
                        ScopedTypeVariables
                        TypeSynonymInstances
-                    --   OverlappingInstances
                        FlexibleInstances
                        DeriveDataTypeable
                        TemplateHaskell
                        QuasiQuotes
+                       UnicodeSyntax
                        CPP
   default-language:    Haskell2010
-  ghc-options:         -Wall 
-                        -- These warnings are not turned on by -Wall
+  ghc-options:         -Wall
                        -fwarn-implicit-prelude 
                        -fwarn-monomorphism-restriction 
                        -fwarn-incomplete-record-updates 
                        -fwarn-tabs 
                        -fno-ignore-asserts
-                       -- -v
-                       -- Dump Core language
-                       -- -ddump-simpl
-                       -- Warnings as errors
-                     --  -Werror
-                       -- Allow comment lines next to literate lines
                        -optL -q
-                       -- Profiling 
-                       -- -prof
-                       -- -auto-all
 
 executable alt-exam-exe
   hs-source-dirs:      app
@@ -66,7 +56,7 @@ executable alt-exam-exe
   build-depends:       base
                      , alt-exam
   default-language:    Haskell2010
-  extensions:          NoImplicitPrelude
+  default-extensions:  NoImplicitPrelude
                        MultiParamTypeClasses
                        ScopedTypeVariables
                        TypeSynonymInstances
