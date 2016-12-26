@@ -270,8 +270,8 @@ main loop. -}
 positiveResolution :: Log m => Formula -> m ()
 positiveResolution fm = 
   let fm1 = Skolem.askolemize $ Not $ Fol.generalize fm in
-  do mapM_ (purePositiveResolution . F.listConj) (Prop.simpdnf fm1)
-    Log.infoM "positiveResolution" "Solution found!"
+    do mapM_ (purePositiveResolution . F.listConj) (Prop.simpdnf fm1)
+       Log.infoM "positiveResolution" "Solution found!"
 
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -- %%% Set of support
@@ -295,5 +295,5 @@ pureSosResolution fm =
 sosResolution :: Log m => Formula -> m ()
 sosResolution fm = 
   let fm1 = Skolem.askolemize $ Not $ Fol.generalize fm in
-  do mapM_ (pureSosResolution . F.listConj) (Prop.simpdnf fm1)
-    Log.infoM "sosResolution" "Solution found!"
+    do mapM_ (pureSosResolution . F.listConj) (Prop.simpdnf fm1)
+       Log.infoM "sosResolution" "Solution found!"
