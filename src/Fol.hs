@@ -54,16 +54,16 @@ instance Fv Rel where
 
 instance Fv Formula where
   fv fm = case fm of
-            [$form| ⊤ |] -> []
-            [$form| ⊥ |] -> []
-            [$form| ¬ $p |] -> fv p
-            [$form| ∀ $x. $p |] -> fv p \\ [x]
-            [$form| exists $x. $p |] -> fv p \\ [x]
-            [$form| $p ∧ $q  |] -> combine p q
-            [$form| $p ∨ $q |] -> combine p q
-            [$form| $p ⊃ $q  |] -> combine p q
-            [$form| $p ⇔ $q |] -> combine p q
-            [$form| ^a |] -> fv a
+            [form| ⊤ |] -> []
+            [form| ⊥ |] -> []
+            [form| ¬ $p |] -> fv p
+            [form| ∀ $x. $p |] -> fv p \\ [x]
+            [form| exists $x. $p |] -> fv p \\ [x]
+            [form| $p ∧ $q  |] -> combine p q
+            [form| $p ∨ $q |] -> combine p q
+            [form| $p ⊃ $q  |] -> combine p q
+            [form| $p ⇔ $q |] -> combine p q
+            [form| ^a |] -> fv a
     where combine p q = fv p ∪ fv q
 
 instance Fv a => Fv [a] where
@@ -84,16 +84,16 @@ instance Nums Rel where
 
 instance Nums Formula where
   nums fm = case fm of
-              [$form| ⊤ |] -> []
-              [$form| ⊥ |] -> []
-              [$form| ¬ $p |] -> nums p
-              [$form| ∀ $_. $p |] -> nums p 
-              [$form| exists $_. $p |] -> nums p
-              [$form| $p ∧ $q  |] -> combine p q
-              [$form| $p ∨ $q |] -> combine p q
-              [$form| $p ⊃ $q  |] -> combine p q
-              [$form| $p ⇔ $q |] -> combine p q
-              [$form| ^a |] -> nums a
+              [form| ⊤ |] -> []
+              [form| ⊥ |] -> []
+              [form| ¬ $p |] -> nums p
+              [form| ∀ $_. $p |] -> nums p 
+              [form| exists $_. $p |] -> nums p
+              [form| $p ∧ $q  |] -> combine p q
+              [form| $p ∨ $q |] -> combine p q
+              [form| $p ⊃ $q  |] -> combine p q
+              [form| $p ⇔ $q |] -> combine p q
+              [form| ^a |] -> nums a
     where combine p q = nums p ∪ nums q
 
 instance Nums a => Nums [a] where
@@ -138,26 +138,26 @@ instance Subst Rel where
 
 instance Subst Formula where
   apply env fm = case fm of 
-    [$form| ^a |] -> [$form| ^a' |] 
+    [form| ^a |] -> [form| ^a' |] 
       where a' = apply env a
-    [$form| ¬ $p |] -> [$form| ¬ $p' |]
+    [form| ¬ $p |] -> [form| ¬ $p' |]
       where p' = apply env p
-    [$form| $p ∧ $q |] -> [$form| $p' ∧ $q' |]
+    [form| $p ∧ $q |] -> [form| $p' ∧ $q' |]
       where p' = apply env p 
             q' = apply env q
-    [$form| $p ∨ $q |] -> [$form| $p' ∨ $q' |]
+    [form| $p ∨ $q |] -> [form| $p' ∨ $q' |]
       where p' = apply env p 
             q' = apply env q
-    [$form| $p ⊃ $q |] -> [$form| $p' ⊃ $q' |]
+    [form| $p ⊃ $q |] -> [form| $p' ⊃ $q' |]
       where p' = apply env p 
             q' = apply env q
-    [$form| $p ⇔ $q |] -> [$form| $p' ⇔ $q' |]
+    [form| $p ⇔ $q |] -> [form| $p' ⇔ $q' |]
       where p' = apply env p 
             q' = apply env q
-    [$form| forall $x. $p |] -> applyq env All x p
-    [$form| exists $x. $p |] -> applyq env Ex x p
-    [$form| true |] -> [$form| true |]
-    [$form| false |] -> [$form| false |]
+    [form| forall $x. $p |] -> applyq env All x p
+    [form| exists $x. $p |] -> applyq env Ex x p
+    [form| true |] -> [form| true |]
+    [form| false |] -> [form| false |]
 
 -- Substitute under a binder
 -- The following functions need the type variable, as they are used at multiple types
@@ -183,13 +183,13 @@ termval m@(_, func, _) v tm = case tm of
 
 holds :: ([a], Func -> [a] -> a, Pred -> [a] -> Bool) -> Map Var a -> Formula -> Bool
 holds m@(domain, _, f) v fm = case fm of 
-  [$form| ⊥ |] -> False
-  [$form| ⊤ |] -> True
+  [form| ⊥ |] -> False
+  [form| ⊤ |] -> True
   Atom (R r args) -> f r (map (termval m v) args)
-  [$form| ¬ $p |] -> not(holds m v p)
-  [$form| $p ∧ $q |] -> holds m v p && holds m v q
-  [$form| $p ∨ $q |] -> holds m v p || holds m v q
-  [$form| $p ⊃ $q |] -> not (holds m v p) || holds m v q
-  [$form| $p ⇔ $q |] -> holds m v p == holds m v q
-  [$form| ∀ $x. $p |] -> List.all (\a -> holds m (Map.insert x a v) p) domain
-  [$form| exists $x. $p |] -> List.any (\a -> holds m (Map.insert x a v) p) domain
+  [form| ¬ $p |] -> not(holds m v p)
+  [form| $p ∧ $q |] -> holds m v p && holds m v q
+  [form| $p ∨ $q |] -> holds m v p || holds m v q
+  [form| $p ⊃ $q |] -> not (holds m v p) || holds m v q
+  [form| $p ⇔ $q |] -> holds m v p == holds m v q
+  [form| ∀ $x. $p |] -> List.all (\a -> holds m (Map.insert x a v) p) domain
+  [form| exists $x. $p |] -> List.any (\a -> holds m (Map.insert x a v) p) domain
