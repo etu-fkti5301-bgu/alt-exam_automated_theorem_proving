@@ -93,7 +93,6 @@ executable alt-exam-exe
                       MultiParamTypeClasses
                       ScopedTypeVariables
                       TypeSynonymInstances
-                      OverlappingInstances
                       FlexibleInstances
                       DeriveDataTypeable
                       TemplateHaskell
