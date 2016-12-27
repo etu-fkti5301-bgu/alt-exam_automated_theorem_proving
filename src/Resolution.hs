@@ -125,7 +125,7 @@ pureBasicResolution fm = basicResloop ([], Prop.simpcnf $ Skolem.specialize $ Sk
 {- Overall, we split up the formula, put it into clausal form and start the
 main loop. -}
 
-basicResolution :: (Monad m, Log m) => Formula -> m ()
+basicResolution :: Log m => Formula -> m ()
 basicResolution fm = 
   let fm1 = Skolem.askolemize $ Not $ Fol.generalize fm in
   do mapM_ (pureBasicResolution . F.listConj) (Prop.simpdnf fm1)
