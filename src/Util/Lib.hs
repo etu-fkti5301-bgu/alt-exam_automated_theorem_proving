@@ -28,7 +28,7 @@ import qualified Text.Printf as Printf
 
 -- * Misc
 
-timeIO :: Show a => IO a -> IO a
+timeIO :: IO a -> IO a
 timeIO a = do 
   start <- Time.getCPUTime
   v <- a
@@ -74,5 +74,5 @@ substringIndex s1 s2 =
 (↦) :: Ord a => a -> b -> Map a b -> Map a b
 (↦) = Map.insert
 
-(⟾) :: Ord a => a -> b -> Map a b
+(⟾) :: a -> b -> Map a b
 (⟾) = Map.singleton 

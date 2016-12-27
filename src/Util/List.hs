@@ -27,8 +27,6 @@ where
 -- Imports
 
 import Prelude 
-import Util.Lib (pow)
-import qualified Control.Monad as M
 import Data.List hiding (uncons)
 
 -- Util
