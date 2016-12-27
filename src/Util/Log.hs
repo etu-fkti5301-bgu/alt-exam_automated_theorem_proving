@@ -2,7 +2,7 @@
 
 -- * Signature
 
-module Util.Log () where {-
+module Util.Log
   ( module Util.Log.Class
   , initialize
   , stdout
@@ -16,16 +16,15 @@ where
 -- * Imports
 
 import Prelude hiding (log)
-import qualified Directory
+import qualified System.Directory as Directory
 import Util.Log.Class
 import qualified System.IO as IO 
 import qualified System.Log.Handler.Simple as S
 import qualified System.Log.Logger as Log
---import qualified System.IO.UTF8 as S
 
 -- * Implementation
 
---type Handler = S.GenericHandler IO.Handle 
+type Handler = S.GenericHandler IO.Handle
 
 -- Parse a priority.
 
@@ -42,12 +41,9 @@ readPrio s | s == "debug" = Just DEBUG
 
 -- Print to both stdout and the log.
 
-utf8putStrLn :: String -> IO ()
-utf8putStrLn x = System.IO.putStrLn (S.encodeString x)
-
 stdout :: String -> IO ()
 stdout s = do logM "stdout" INFO s
-              utf8putStrLn s
+              IO.putStrLn s
 
 -- ATP starts logging with the default priority.
 
@@ -101,4 +97,4 @@ set both the global and the file log prioriteies. -}
 
 setLevel :: String -> Priority -> IO ()
 setLevel log = Log.updateGlobalLogger log . Log.setLevel
--}
+
