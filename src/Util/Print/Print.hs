@@ -24,8 +24,7 @@ where
 -- Imports
 
 import Prelude hiding (putStrLn)
-import qualified System.IO
-import qualified Codec.Binary.UTF8.String as S
+import qualified System.IO as IO
 import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
@@ -100,12 +99,8 @@ pPrint0 l = pPrintPrec l 0
 appPrec :: Rational
 appPrec = 10
 
-utf8putStrLn :: String -> IO ()
-utf8putStrLn x = System.IO.putStrLn (S.encodeString x)
-
-
 putStrLn :: PP.Doc -> IO ()
-putStrLn = utf8putStrLn . PP.render
+putStrLn = IO.putStrLn . PP.render
 
 -- Instances
 
