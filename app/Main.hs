@@ -17,12 +17,6 @@ main = do
    let mode = head args
        formulas :: [Formula] = map parse $ tail args
    case mode of
-     "nnf" -> putStrLn jsonStr
-              where
-                jsonStr = jsonToString json
-                json = makeJSON [("parsed_formulas", pforms), ("result", nnfs)]
-                pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
-                nnfs = makeJSON $ map (makeJSON . show . pPrint . nnf) formulas
      "pnf" -> putStrLn jsonStr
               where
                 jsonStr = jsonToString json
