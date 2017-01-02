@@ -21,19 +21,19 @@ main = do
      "nnf" -> putStrLn jsonStr
               where
                 jsonStr = jsonToString json
-                json = makeJSON [("parsed_formulas", pforms), ("nnfs", nnfs)]
+                json = makeJSON [("parsed_formulas", pforms), ("result", nnfs)]
                 pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
                 nnfs = makeJSON $ map (makeJSON . show . pPrint . nnf) formulas
      "pnf" -> putStrLn jsonStr
               where
                 jsonStr = jsonToString json
-                json = makeJSON [("parsed_formulas", pforms), ("pnfs", pnfs)]
+                json = makeJSON [("parsed_formulas", pforms), ("result", pnfs)]
                 pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
                 pnfs = makeJSON $ map (makeJSON . show . pPrint . pnf) formulas
      "snf" -> putStrLn jsonStr
               where
                 jsonStr = jsonToString json
-                json = makeJSON [("parsed_formulas", pforms), ("snfs", snfs)]
+                json = makeJSON [("parsed_formulas", pforms), ("result", snfs)]
                 pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
                 snfs = makeJSON $ map (makeJSON . show . pPrint . skolemize) formulas
      _ -> putStrLn "undefined"
