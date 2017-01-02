@@ -20,13 +20,13 @@ main = do
      "pnf" -> putStrLn jsonStr
               where
                 jsonStr = jsonToString json
-                json = makeJSON [("parsed_formulas", pforms), ("result", pnfs)]
+                json = makeJSON [("parsed", pforms), ("result", pnfs)]
                 pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
                 pnfs = makeJSON $ map (makeJSON . show . pPrint . pnf) formulas
      "snf" -> putStrLn jsonStr
               where
                 jsonStr = jsonToString json
-                json = makeJSON [("parsed_formulas", pforms), ("result", snfs)]
+                json = makeJSON [("parsed", pforms), ("result", snfs)]
                 pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
                 snfs = makeJSON $ map (makeJSON . show . pPrint . skolemize) formulas
      "unf" -> putStrLn jsonStr
