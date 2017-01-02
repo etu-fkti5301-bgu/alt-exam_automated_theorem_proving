@@ -29,4 +29,11 @@ main = do
                 json = makeJSON [("parsed_formulas", pforms), ("result", snfs)]
                 pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
                 snfs = makeJSON $ map (makeJSON . show . pPrint . skolemize) formulas
+     "unf" -> putStrLn jsonStr
+              where
+                jsonStr = jsonToString json
+                json = makeJSON [("parsed", pforms), ("result", unifiedTerms)]
+                pforms = makeJSON $ map (show . pPrint . (\(x, y) -> [x, y]) . head) terms
+                unifiedTerms = makeJSON $ map (show . pPrint . (\(x, y) -> [x, y]) . head . fromJust . unifyAndApply) terms
+                terms :: [[(Term, Term)]] = (\[x, y] -> [[(x, y)]]) . map parse $ tail args
      _ -> putStrLn "undefined"
