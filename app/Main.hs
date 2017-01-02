@@ -11,7 +11,6 @@ import System.Environment
 import Skolem
 import Unif
 
-
 main :: IO ()
 main = do
    args <- getArgs
@@ -37,4 +36,3 @@ main = do
                 pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
                 snfs = makeJSON $ map (makeJSON . show . pPrint . skolemize) formulas
      _ -> putStrLn "undefined"
-
