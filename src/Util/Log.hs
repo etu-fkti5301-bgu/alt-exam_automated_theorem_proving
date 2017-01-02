@@ -48,7 +48,7 @@ stdout s = do logM "stdout" INFO s
 -- ATP starts logging with the default priority.
 
 defaultPrio :: Priority
-defaultPrio = INFO
+defaultPrio = WARNING
 
 -- Log output to logFileName
 

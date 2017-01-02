@@ -71,9 +71,7 @@ don't record the priority. -}
 instance Log IO where
   putStrLn = Prelude.putStrLn
   putStrLn' = PP.putStrLn
-  logM' log prio msg = do
-    Logger.logM log prio (PP.render doc)
-    Logger.updateGlobalLogger log (Logger.setLevel prio)
+  logM' log prio msg = do Logger.logM log prio (PP.render doc)
                           -- IO.hFlush IO.stdout
     where doc = PP.vcat [ header, PP.text "  " <> msg ]
           header = PP.brackets $ PP.text (log ++ priop)
