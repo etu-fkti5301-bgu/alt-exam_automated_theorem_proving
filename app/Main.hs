@@ -43,6 +43,6 @@ main = do
                 jsonStr = jsonToString json
                 json = makeJSON [("parsed", pforms), ("result", unifiedTerms)]
                 pforms = makeJSON $ map (show . pPrint . (\(x, y) -> [x, y]) . head) terms
-                unifiedTerms = makeJSON $ map (show . pPrint . (\(x, y) -> [x, y]) . head . fromJust . unifyAndApply) terms
+                unifiedTerms = makeJSON $ map (showUnifyMaybe . unifyAndApply) terms
                 terms :: [[(Term, Term)]] = (\[x, y] -> [[(x, y)]]) . map parse $ tail args
      _ -> putStrLn "undefined"

@@ -3,13 +3,16 @@ module Unif
    , solve
    , fullunify
    , unifyAndApply
+   , showUnifyMaybe
    )
 where
 
+import Data.Maybe (isJust)
 import Util.Prelude
 import Fol
 import FormulaSyn
 import Util.Lib ((↦))
+import Util.Print (pPrint)
 import qualified Data.Map as Map
 
 istriv :: Env -> Var -> Term -> Maybe Bool
@@ -65,3 +68,8 @@ unifyAndApply :: [(Term, Term)] -> Maybe [(Term, Term)]
 unifyAndApply eqs = do env <- fullunify eqs 
                        return $ let apply' (t1, t2) = (apply env t1, apply env t2)
                                 in map apply' eqs
+
+showUnifyMaybe :: Maybe [(Term, Term)] -> String
+showUnifyMaybe m = if isJust m
+                     then show . pPrint . fst . head $ fromJust m
+                     else "Nothing"
