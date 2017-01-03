@@ -29,7 +29,7 @@ main = do
                 jsonStr = jsonToString json
                 json = makeJSON [("parsed", pforms), ("result", snfs)]
                 pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
-                snfs = makeJSON $ map (makeJSON . show . pPrint . skolemize) formulas
+                snfs = makeJSON $ map (makeJSON . show . pPrint . askolemize) formulas
                 formulas :: [Formula] = map parse $ tail args
      "rsl" -> putStrLn jsonStr
               where
