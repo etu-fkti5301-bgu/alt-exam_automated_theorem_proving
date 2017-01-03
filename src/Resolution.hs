@@ -219,17 +219,25 @@ resloop (used, unused) = case unused of
     if elem [] news then return () 
       else resloop (used',foldr (incorporate cl) ros news)
 
-pureResolution :: Log m => Formula -> m ()
-pureResolution fm = resloop ([], Prop.simpcnf $ Skolem.specialize $ Skolem.pnf fm)
+resloop' :: ([Clause], [Clause]) -> Bool
+resloop' (used, unused) = case unused of
+  [] -> False
+  cl:ros -> do
+    let used' = Set.insert cl used
+        news = List.concat (map (resolveClauses cl) used')
+    if elem [] news then True
+      else resloop' (used',foldr (incorporate cl) ros news)
+
+pureResolution :: Formula -> Bool
+pureResolution fm = resloop' ([], Prop.simpcnf $ Skolem.specialize $ Skolem.pnf fm)
 
 {- Overall, we split up the formula, put it into clausal form and start the
 main loop. -}
 
-resolution :: Log m => Formula -> m ()
+resolution :: Formula -> [Bool]
 resolution fm = 
   let fm1 = Skolem.askolemize $ Not $ Fol.generalize fm in
-  do mapM_ (pureResolution . F.listConj) (Prop.simpdnf fm1)
-     Log.infoM "resolution" "Solution found!"
+  map (pureResolution . F.listConj) (Prop.simpdnf fm1)
 
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -- %%% Positive resolution
