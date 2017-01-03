@@ -7,6 +7,7 @@ import Util.Parse
 import Util.Prelude
 import Formula
 import FormulaSyn
+import Resolution
 import System.Environment
 import Skolem
 import Unif
@@ -29,6 +30,13 @@ main = do
                 json = makeJSON [("parsed", pforms), ("result", snfs)]
                 pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
                 snfs = makeJSON $ map (makeJSON . show . pPrint . skolemize) formulas
+                formulas :: [Formula] = map parse $ tail args
+     "rsl" -> putStrLn jsonStr
+              where
+                jsonStr = jsonToString json
+                json = makeJSON [("parsed", pforms), ("result", rsls)]
+                pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
+                rsls = makeJSON $ map (makeJSON . show . pPrint . last . resolution) formulas
                 formulas :: [Formula] = map parse $ tail args
      "unf" -> putStrLn jsonStr
               where
