@@ -36,7 +36,7 @@ main = do
                 jsonStr = jsonToString json
                 json = makeJSON [("parsed", pforms), ("result", rsls)]
                 pforms = makeJSON $ map (makeJSON . show . pPrint) formulas
-                rsls = makeJSON $ map (makeJSON . show . pPrint . last . resolution) formulas
+                rsls = makeJSON $ map (makeJSON . show . pPrint . (\ l -> if null l then True else False) . resolution) formulas
                 formulas :: [Formula] = map parse $ tail args
      "unf" -> putStrLn jsonStr
               where
